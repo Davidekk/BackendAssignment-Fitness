@@ -1,6 +1,6 @@
 import { Router } from 'express'
 
-import { register, login, refreshToken } from '../controllers/authController'
+import { register, login, refreshToken } from '../controllers/auth'
 
 const router = Router()
 

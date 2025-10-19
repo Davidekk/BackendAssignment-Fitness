@@ -6,11 +6,12 @@ import express from 'express'
 import cookieParser from 'cookie-parser'
 
 import { sequelize } from './db'
-import passport from "./config/passport";
+import passport from './config/passport'
 
 import ProgramRouter from './routes/programs'
 import ExerciseRouter from './routes/exercises'
-import AuthRouter from './routes/authRoutes'
+import AuthRouter from './routes/auth'
+import AdminRouter from './routes/admin'
 
 const PORT = process.env.PORT ?? 8000
 const app = express()
@@ -18,12 +19,14 @@ const app = express()
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 app.use(cookieParser())
-app.use(passport.initialize());
+app.use(passport.initialize())
 
 // Routes
 app.use('/auth', AuthRouter)
 app.use('/programs', ProgramRouter)
 app.use('/exercises', ExerciseRouter)
+app.use('/admin', AdminRouter)
+
 ;(async () => {
   try {
     await sequelize.authenticate()
