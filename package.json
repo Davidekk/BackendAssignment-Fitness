@@ -11,12 +11,14 @@
     "start": "cross-env TS_NODE_FILES=true TS_NODE_TRANSPILE_ONLY=true node -r ts-node/register src/index.ts",
     "seed": "cross-env TS_NODE_FILES=true TS_NODE_TRANSPILE_ONLY=true node -r ts-node/register src/seed.ts",
     "lint": "echo \"Error: no lint specified\" && exit 1",
-    "type-check": "echo \"Error: no check specified\" && exit 1"
+    "type-check": "echo \"Error: no check specified\" && exit 1",
+    "format": "prettier --write \"src/**/*.ts\""
   },
   "author": "richard.solar@goodrequest.com",
   "license": "ISC",
   "dependencies": {
     "cross-env": "^7.0.2",
+    "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "pg": "^8.16.0",
     "sequelize": "^6.37.7",
@@ -26,6 +28,11 @@
   "devDependencies": {
     "@types/express": "^5.0.3",
     "@types/node": "^22.15.30",
-    "@types/validator": "^13.15.1"
+    "@types/validator": "^13.15.1",
+    "@typescript-eslint/eslint-plugin": "^8.46.1",
+    "@typescript-eslint/parser": "^8.46.1",
+    "eslint": "^9.38.0",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.6.2"
   }
 }
