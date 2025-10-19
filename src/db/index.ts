@@ -3,6 +3,7 @@ import { Sequelize } from 'sequelize'
 
 import defineExercise from './exercise'
 import defineProgram from './program'
+import defineUser from './user'
 
 const sequelize: Sequelize = new Sequelize(process.env.POSTGRE_SQL, {
   logging: false
@@ -14,10 +15,12 @@ sequelize
 
 const Exercise = defineExercise(sequelize, 'exercise')
 const Program = defineProgram(sequelize, 'program')
+const User = defineUser(sequelize, 'user')
 
 const models = {
   Exercise,
-  Program
+  Program,
+  User
 }
 type Models = typeof models
 
