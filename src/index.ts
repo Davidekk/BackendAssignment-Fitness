@@ -12,6 +12,7 @@ import ProgramRouter from './routes/programs'
 import ExerciseRouter from './routes/exercises'
 import AuthRouter from './routes/auth'
 import AdminRouter from './routes/admin'
+import UserRouter from './routes/user'
 
 const PORT = process.env.PORT ?? 8000
 const app = express()
@@ -26,6 +27,7 @@ app.use('/auth', AuthRouter)
 app.use('/programs', ProgramRouter)
 app.use('/exercises', ExerciseRouter)
 app.use('/admin', AdminRouter)
+app.use('/', UserRouter)
 
 ;(async () => {
   try {
