@@ -118,7 +118,9 @@ export const getAllUsers = async (
   _next: NextFunction
 ): Promise<any> => {
   try {
-    const users = await User.findAll()
+    const users = await User.findAll({
+      attributes: { exclude: ['password'] }
+    })
     res.json(users)
   } catch (err) {
     res
@@ -133,7 +135,9 @@ export const getUserDetail = async (
   _next: NextFunction
 ): Promise<any> => {
   try {
-    const user = await User.findByPk(req.params.id)
+    const user = await User.findByPk(req.params.id, {
+      attributes: { exclude: ['password'] }
+    })
     if (!user)
       return res
         .status(StatusCodes.NOT_FOUND)
@@ -161,7 +165,9 @@ export const updateUser = async (
         .status(StatusCodes.NOT_FOUND)
         .json({ message: 'User not found' })
 
-    const updatedUser = await User.findByPk(id)
+    const updatedUser = await User.findByPk(id, {
+      attributes: { exclude: ['password'] }
+    })
     res.json(updatedUser)
   } catch (err) {
     res
