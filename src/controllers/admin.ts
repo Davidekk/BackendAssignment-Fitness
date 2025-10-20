@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express'
 import { models } from '../db'
+import { StatusCodes } from 'http-status-codes'
 
 const { User, Exercise, Program } = models
 
@@ -10,9 +11,11 @@ export const createExercise = async (
 ): Promise<any> => {
   try {
     const exercise = await Exercise.create(req.body)
-    res.status(201).json(exercise)
+    res.status(StatusCodes.CREATED).json(exercise)
   } catch (err) {
-    res.status(500).json({ message: 'Failed to create exercise', error: err })
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: 'Failed to create exercise', error: err })
   }
 }
 
@@ -23,12 +26,19 @@ export const updateExercise = async (
 ): Promise<any> => {
   try {
     const { id } = req.params
+
     const [updated] = await Exercise.update(req.body, { where: { id } })
-    if (!updated) return res.status(404).json({ message: 'Exercise not found' })
+    if (!updated)
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: 'Exercise not found' })
+
     const updatedExercise = await Exercise.findByPk(id)
     res.json(updatedExercise)
   } catch (err) {
-    res.status(500).json({ message: 'Failed to update exercise', error: err })
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: 'Failed to update exercise', error: err })
   }
 }
 
@@ -39,11 +49,18 @@ export const deleteExercise = async (
 ): Promise<any> => {
   try {
     const { id } = req.params
+
     const deleted = await Exercise.destroy({ where: { id } })
-    if (!deleted) return res.status(404).json({ message: 'Exercise not found' })
-    res.status(204).send()
+    if (!deleted)
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: 'Exercise not found' })
+
+    res.status(StatusCodes.NO_CONTENT).send()
   } catch (err) {
-    res.status(500).json({ message: 'Failed to delete exercise', error: err })
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: 'Failed to delete exercise', error: err })
   }
 }
 
@@ -56,13 +73,17 @@ export const addExerciseToProgram = async (
     const { programId, exerciseId } = req.params
     const program = await Program.findByPk(programId)
     const exercise = await Exercise.findByPk(exerciseId)
+
     if (!program || !exercise)
-      return res.status(404).json({ message: 'Program or exercise not found' })
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: 'Program or exercise not found' })
+
     await (program as any).addExercise(exercise)
     res.json({ message: 'Exercise added to program' })
   } catch (err) {
     res
-      .status(500)
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({ message: 'Failed to add exercise to program', error: err })
   }
 }
@@ -76,19 +97,23 @@ export const removeExerciseFromProgram = async (
     const { programId, exerciseId } = req.params
     const program = await Program.findByPk(programId)
     const exercise = await Exercise.findByPk(exerciseId)
+
     if (!program || !exercise)
-      return res.status(404).json({ message: 'Program or exercise not found' })
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: 'Program or exercise not found' })
     await (program as any).removeExercise(exercise)
+
     res.json({ message: 'Exercise removed from program' })
   } catch (err) {
     res
-      .status(500)
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({ message: 'Failed to remove exercise from program', error: err })
   }
 }
 
 export const getAllUsers = async (
-  req: Request,
+  _req: Request,
   res: Response,
   _next: NextFunction
 ): Promise<any> => {
@@ -96,7 +121,9 @@ export const getAllUsers = async (
     const users = await User.findAll()
     res.json(users)
   } catch (err) {
-    res.status(500).json({ message: 'Failed to load users', error: err })
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: 'Failed to load users', error: err })
   }
 }
 
@@ -107,10 +134,16 @@ export const getUserDetail = async (
 ): Promise<any> => {
   try {
     const user = await User.findByPk(req.params.id)
-    if (!user) return res.status(404).json({ message: 'User not found' })
+    if (!user)
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: 'User not found' })
+
     res.json(user)
   } catch (err) {
-    res.status(500).json({ message: 'Failed to load user', error: err })
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: 'Failed to load user', error: err })
   }
 }
 
@@ -121,11 +154,18 @@ export const updateUser = async (
 ): Promise<any> => {
   try {
     const { id } = req.params
+
     const [updated] = await User.update(req.body, { where: { id } })
-    if (!updated) return res.status(404).json({ message: 'User not found' })
+    if (!updated)
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: 'User not found' })
+
     const updatedUser = await User.findByPk(id)
     res.json(updatedUser)
   } catch (err) {
-    res.status(500).json({ message: 'Failed to update user', error: err })
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: 'Failed to update user', error: err })
   }
 }

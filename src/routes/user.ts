@@ -3,41 +3,38 @@ import passport from '../config/passport'
 import { authorizeRole } from '../middlewares/authorize'
 import { USER_ROLE } from '../utils/enums'
 import * as UserController from '../controllers/user'
+import { validate } from '../middlewares/validate'
+import {
+  completedExerciseIdParamSchema,
+  exerciseIdParamSchema,
+  trackExerciseBodySchema
+} from '../validation/user.validation'
 
 const router = express.Router()
 
-router.get(
-  '/all',
-  passport.authenticate('jwt', { session: false }),
-  authorizeRole(USER_ROLE.USER),
-  UserController.getAllUsersBasic
-)
+const auth = passport.authenticate('jwt', { session: false })
+const user = authorizeRole(USER_ROLE.USER)
 
-router.get(
-  '/profile',
-  passport.authenticate('jwt', { session: false }),
-  authorizeRole(USER_ROLE.USER),
-  UserController.getOwnProfile
-)
+router.get('/all', auth, user, UserController.getAllUsersBasic)
+
+router.get('/profile', auth, user, UserController.getOwnProfile)
 
 router.post(
   '/track/:exerciseId',
-  passport.authenticate('jwt', { session: false }),
-  authorizeRole(USER_ROLE.USER),
+  auth,
+  user,
+  validate(exerciseIdParamSchema, 'params'),
+  validate(trackExerciseBodySchema),
   UserController.trackCompletedExercise
 )
 
-router.get(
-  '/completed',
-  passport.authenticate('jwt', { session: false }),
-  authorizeRole(USER_ROLE.USER),
-  UserController.getCompletedExercises
-)
+router.get('/completed', auth, user, UserController.getCompletedExercises)
 
 router.delete(
   '/completed/:id',
-  passport.authenticate('jwt', { session: false }),
-  authorizeRole(USER_ROLE.USER),
+  auth,
+  user,
+  validate(completedExerciseIdParamSchema, 'params'),
   UserController.removeTrackedExercise
 )
 

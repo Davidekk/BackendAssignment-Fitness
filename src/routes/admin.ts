@@ -2,73 +2,77 @@ import express from 'express'
 import passport from '../config/passport'
 import { authorizeRole } from '../middlewares/authorize'
 import { USER_ROLE } from '../utils/enums'
+import * as AdminController from '../controllers/admin'
+import { validate } from '../middlewares/validate'
+import { idParamSchema, updateUserSchema } from '../validation/user.validation'
 import {
-  createExercise,
-  updateExercise,
-  deleteExercise,
-  addExerciseToProgram,
-  removeExerciseFromProgram,
-  getAllUsers,
-  getUserDetail,
-  updateUser
-} from '../controllers/admin'
+  exerciseSchema,
+  exerciseProgramParamsSchema
+} from '../validation/exercise.validation'
 
 const router = express.Router()
 
+const auth = passport.authenticate('jwt', { session: false })
+const admin = authorizeRole(USER_ROLE.ADMIN)
+
 router.post(
   '/exercises',
-  passport.authenticate('jwt', { session: false }),
-  authorizeRole(USER_ROLE.ADMIN),
-  createExercise
+  auth,
+  admin,
+  validate(exerciseSchema),
+  AdminController.createExercise
 )
 
 router.put(
   '/exercises/:id',
-  passport.authenticate('jwt', { session: false }),
-  authorizeRole(USER_ROLE.ADMIN),
-  updateExercise
+  auth,
+  admin,
+  validate(idParamSchema, 'params'),
+  validate(exerciseSchema),
+  AdminController.updateExercise
 )
 
 router.delete(
   '/exercises/:id',
-  passport.authenticate('jwt', { session: false }),
-  authorizeRole(USER_ROLE.ADMIN),
-  deleteExercise
+  auth,
+  admin,
+  validate(idParamSchema, 'params'),
+  AdminController.deleteExercise
 )
 
 router.post(
   '/programs/:programId/exercises/:exerciseId',
-  passport.authenticate('jwt', { session: false }),
-  authorizeRole(USER_ROLE.ADMIN),
-  addExerciseToProgram
+  auth,
+  admin,
+  validate(exerciseProgramParamsSchema, 'params'),
+  AdminController.addExerciseToProgram
 )
 
 router.delete(
   '/programs/:programId/exercises/:exerciseId',
-  passport.authenticate('jwt', { session: false }),
-  authorizeRole(USER_ROLE.ADMIN),
-  removeExerciseFromProgram
+  auth,
+  admin,
+  validate(exerciseProgramParamsSchema, 'params'),
+  AdminController.removeExerciseFromProgram
 )
 
-router.get(
-  '/users',
-  passport.authenticate('jwt', { session: false }),
-  authorizeRole(USER_ROLE.ADMIN),
-  getAllUsers
-)
+router.get('/users', auth, admin, AdminController.getAllUsers)
 
 router.get(
   '/users/:id',
-  passport.authenticate('jwt', { session: false }),
-  authorizeRole(USER_ROLE.ADMIN),
-  getUserDetail
+  auth,
+  admin,
+  validate(idParamSchema, 'params'),
+  AdminController.getUserDetail
 )
 
 router.put(
   '/users/:id',
-  passport.authenticate('jwt', { session: false }),
-  authorizeRole(USER_ROLE.ADMIN),
-  updateUser
+  auth,
+  admin,
+  validate(idParamSchema, 'params'),
+  validate(updateUserSchema),
+  AdminController.updateUser
 )
 
 export default router

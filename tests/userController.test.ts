@@ -138,15 +138,16 @@ describe('User controller', () => {
   })
 
   describe('trackCompletedExercise', () => {
-    it('validates duration and returns 400', async () => {
+    it('returns 404 when exercise missing', async () => {
       const app = buildApp()
+      models.Exercise.findByPk.mockResolvedValue(null)
 
       const response = await request(app)
-        .post('/users/track/2')
-        .send({ duration: 0 })
+        .post('/users/track/1')
+        .send({ duration: 123 })
 
-      expect(response.status).toBe(400)
-      expect(response.body).toEqual({ message: 'Invalid duration' })
+      expect(response.status).toBe(404)
+      expect(response.body).toEqual({ message: 'Exercise not found' })
     })
 
     it('tracks exercise and returns 201', async () => {
@@ -221,4 +222,3 @@ describe('User controller', () => {
     })
   })
 })
-

@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { Op } from 'sequelize'
+import { StatusCodes } from 'http-status-codes'
 
 import { models } from '../db'
 import { USER_ROLE } from '../utils/enums'
@@ -15,7 +16,7 @@ type RegisterBody = {
   email: string
   password: string
   role?: USER_ROLE
-  age?: number | string | null
+  age?: number | null
 }
 
 const sanitizeUser = (userInstance: any) => {
@@ -42,26 +43,10 @@ export const register = async (
   res: Response,
   _next: NextFunction
 ): Promise<any> => {
-  const { name, surname, nickName, email, password, role, age } =
+  let { name, surname, nickName, email, password, role, age } =
     req.body as RegisterBody
 
-  if (!email || !password || !nickName || !name || !surname) {
-    return res.status(400).json({ message: 'Missing required fields' })
-  }
-
-  const normalizedAge =
-    age === undefined || age === null || age === '' ? null : Number(age)
-
-  if (
-    normalizedAge !== null &&
-    (!Number.isFinite(normalizedAge) || normalizedAge < 0)
-  ) {
-    return res.status(400).json({ message: 'Invalid age value' })
-  }
-
-  const normalizedRole = Object.values(USER_ROLE).includes(role as USER_ROLE)
-    ? (role as USER_ROLE)
-    : USER_ROLE.USER
+  role ??= USER_ROLE.USER
 
   try {
     const existingUser = await User.findOne({
@@ -72,11 +57,15 @@ export const register = async (
 
     if (existingUser) {
       if (existingUser.get('email') === email) {
-        return res.status(409).json({ message: 'Email already registered' })
+        return res
+          .status(StatusCodes.CONFLICT)
+          .json({ message: 'Email already registered' })
       }
 
       if (existingUser.get('nickName') === nickName) {
-        return res.status(409).json({ message: 'Nickname already registered' })
+        return res
+          .status(StatusCodes.CONFLICT)
+          .json({ message: 'Nickname already registered' })
       }
     }
 
@@ -88,14 +77,14 @@ export const register = async (
       nickName,
       email,
       password: passwordHash,
-      age: normalizedAge,
-      role: normalizedRole
+      age,
+      role
     })
 
     const secret = resolveJwtSecret()
     if (!secret) {
       return res
-        .status(500)
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
         .json({ message: 'Registration configuration error' })
     }
 
@@ -118,13 +107,15 @@ export const register = async (
       maxAge: 24 * 60 * 60 * 1000 // 24 hours
     })
 
-    return res.status(201).json({
+    return res.status(StatusCodes.CREATED).json({
       accessToken,
       user: sanitizeUser(user)
     })
   } catch (error) {
     console.error('register error', error)
-    return res.status(500).json({ message: 'Registration failed' })
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: 'Registration failed' })
   }
 }
 
@@ -138,26 +129,28 @@ export const login = async (
     password?: string
   }
 
-  if (!email || !password) {
-    return res.status(400).json({ message: 'Missing email or password' })
-  }
-
   try {
     const user = await User.findOne({ where: { email } })
 
     if (!user) {
-      return res.status(401).json({ message: 'Invalid credentials' })
+      return res
+        .status(StatusCodes.UNAUTHORIZED)
+        .json({ message: 'Invalid credentials' })
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.get('password'))
 
     if (!isPasswordValid) {
-      return res.status(401).json({ message: 'Invalid credentials' })
+      return res
+        .status(StatusCodes.UNAUTHORIZED)
+        .json({ message: 'Invalid credentials' })
     }
 
     const secret = resolveJwtSecret()
     if (!secret) {
-      return res.status(500).json({ message: 'Login configuration error' })
+      return res
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: 'Login configuration error' })
     }
 
     const accessToken = jwt.sign(
@@ -179,13 +172,15 @@ export const login = async (
       maxAge: 24 * 60 * 60 * 1000 // 24 hours
     })
 
-    return res.status(200).json({
+    return res.status(StatusCodes.OK).json({
       accessToken,
       user: sanitizeUser(user)
     })
   } catch (error) {
     console.error('login error', error)
-    return res.status(500).json({ message: 'Login failed' })
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: 'Login failed' })
   }
 }
 
@@ -197,7 +192,9 @@ export const refreshToken = async (
   const cookieToken = req.cookies?.refreshToken
 
   if (!cookieToken) {
-    return res.status(401).json({ message: 'Missing refresh token' })
+    return res
+      .status(StatusCodes.UNAUTHORIZED)
+      .json({ message: 'Missing refresh token' })
   }
 
   try {
@@ -208,7 +205,9 @@ export const refreshToken = async (
     const user = await User.findByPk(decoded.userId)
 
     if (!user) {
-      return res.status(401).json({ message: 'Invalid refresh token' })
+      return res
+        .status(StatusCodes.UNAUTHORIZED)
+        .json({ message: 'Invalid refresh token' })
     }
 
     const accessToken = jwt.sign(
@@ -217,12 +216,14 @@ export const refreshToken = async (
       { expiresIn: '15m' }
     )
 
-    return res.status(200).json({
+    return res.status(StatusCodes.OK).json({
       accessToken,
       user: sanitizeUser(user)
     })
   } catch (error) {
     console.error('refresh token error', error)
-    return res.status(500).json({ message: 'Could not refresh token' })
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: 'Could not refresh token' })
   }
 }
