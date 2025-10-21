@@ -1,12 +1,12 @@
 import { Request, Response, NextFunction } from 'express'
 import bcrypt from 'bcrypt'
-import jwt from 'jsonwebtoken'
+import jwt, { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken'
 import { Op } from 'sequelize'
 import { StatusCodes } from 'http-status-codes'
 
 import { models } from '../db'
 import { USER_ROLE } from '../utils/enums'
-import { createLocalizedResponse } from '../services/localization'
+import { createLocalizedResponse } from '../services/localization.service'
 
 const { User } = models
 
@@ -39,6 +39,21 @@ const resolveJwtSecret = (): string | null => {
   return secret
 }
 
+const resolveRefreshSecret = (): string | null => {
+  const secret = process.env.JWT_REFRESH_SECRET
+  if (!secret) {
+    console.error('JWT_REFRESH_SECRET environment variable is not defined')
+    return null
+  }
+
+  return secret
+}
+
+/**
+ * Register a new user account.
+ * @route POST /auth/register
+ * @returns 201 with JWT + user, 409 if email or nickname already taken, or 500 on configuration/other failures.
+ */
 export const register = async (
   req: Request,
   res: Response,
@@ -97,15 +112,24 @@ export const register = async (
       })
     }
 
+    const refreshSecret = resolveRefreshSecret()
+    if (!refreshSecret) {
+      return responder.error({
+        status: StatusCodes.INTERNAL_SERVER_ERROR,
+        messageKey: 'auth.errors.registrationConfig',
+        data: {}
+      })
+    }
+
     const accessToken = jwt.sign(
       { userId: String(user.get('id')), role: user.get('role') },
-      process.env.JWT_SECRET!,
+      secret,
       { expiresIn: '15m' }
     )
 
     const refreshToken = jwt.sign(
       { userId: String(user.get('id')) },
-      process.env.JWT_REFRESH_SECRET!,
+      refreshSecret,
       { expiresIn: '1d' }
     )
 
@@ -135,6 +159,11 @@ export const register = async (
   }
 }
 
+/**
+ * Authenticate a user with email and password.
+ * @route POST /auth/login
+ * @returns 200 with JWT + user, 401 on invalid credentials, or 500 on configuration/other failures.
+ */
 export const login = async (
   req: Request,
   res: Response,
@@ -176,15 +205,24 @@ export const login = async (
       })
     }
 
+    const refreshSecret = resolveRefreshSecret()
+    if (!refreshSecret) {
+      return responder.error({
+        status: StatusCodes.INTERNAL_SERVER_ERROR,
+        messageKey: 'auth.errors.loginConfig',
+        data: {}
+      })
+    }
+
     const accessToken = jwt.sign(
       { userId: String(user.get('id')), role: user.get('role') },
-      process.env.JWT_SECRET!,
+      secret,
       { expiresIn: '15m' }
     )
 
     const refreshToken = jwt.sign(
       { userId: String(user.get('id')) },
-      process.env.JWT_REFRESH_SECRET!,
+      refreshSecret,
       { expiresIn: '1d' }
     )
 
@@ -213,6 +251,11 @@ export const login = async (
   }
 }
 
+/**
+ * Issue a new access token using a refresh token stored in cookies.
+ * @route POST /auth/refresh
+ * @returns 200 with new access token, 401 when refresh token is missing/invalid, or 500 on other failures.
+ */
 export const refreshToken = async (
   req: Request,
   res: Response,
@@ -229,11 +272,26 @@ export const refreshToken = async (
     })
   }
 
+  const refreshSecret = resolveRefreshSecret()
+  if (!refreshSecret) {
+    return responder.error({
+      status: StatusCodes.INTERNAL_SERVER_ERROR,
+      messageKey: 'auth.errors.refreshFailed',
+      data: {}
+    })
+  }
+
+  const accessSecret = resolveJwtSecret()
+  if (!accessSecret) {
+    return responder.error({
+      status: StatusCodes.INTERNAL_SERVER_ERROR,
+      messageKey: 'auth.errors.refreshFailed',
+      data: {}
+    })
+  }
+
   try {
-    const decoded: any = jwt.verify(
-      cookieToken,
-      process.env.JWT_REFRESH_SECRET!
-    )
+    const decoded: any = jwt.verify(cookieToken, refreshSecret)
     const user = await User.findByPk(decoded.userId)
 
     if (!user) {
@@ -246,7 +304,7 @@ export const refreshToken = async (
 
     const accessToken = jwt.sign(
       { userId: String(user.get('id')), role: user.get('role') },
-      process.env.JWT_SECRET!,
+      accessSecret,
       { expiresIn: '15m' }
     )
 
@@ -258,10 +316,55 @@ export const refreshToken = async (
       }
     })
   } catch (error) {
+    if (
+      error instanceof TokenExpiredError ||
+      error instanceof JsonWebTokenError
+    ) {
+      return responder.error({
+        status: StatusCodes.UNAUTHORIZED,
+        messageKey: 'auth.errors.invalidRefreshToken',
+        data: {}
+      })
+    }
+
     console.error('refresh token error', error)
     return responder.error({
       status: StatusCodes.INTERNAL_SERVER_ERROR,
       messageKey: 'auth.errors.refreshFailed',
+      data: {},
+      logError: error
+    })
+  }
+}
+
+/**
+ * Clear refresh token cookie to log the user out.
+ * @route POST /auth/logout
+ * @returns 200 on success, 500 on failures.
+ */
+export const logout = async (
+  req: Request,
+  res: Response,
+  _next: NextFunction
+): Promise<any> => {
+  const responder = createLocalizedResponse(req, res)
+
+  try {
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+      path: '/'
+    })
+
+    return responder.success({
+      messageKey: 'auth.loggedOut'
+    })
+  } catch (error) {
+    console.error('logout error', error)
+    return responder.error({
+      status: StatusCodes.INTERNAL_SERVER_ERROR,
+      messageKey: 'auth.errors.logoutFailed',
       data: {},
       logError: error
     })

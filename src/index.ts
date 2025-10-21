@@ -10,15 +10,16 @@ import passport from './config/passport'
 import { i18n } from './middlewares/i18n'
 import { errorHandler } from './middlewares/errorHandler'
 
-import ProgramRouter from './routes/programs'
-import ExerciseRouter from './routes/exercises'
-import AuthRouter from './routes/auth'
-import AdminRouter from './routes/admin'
-import UserRouter from './routes/user'
+import ProgramRouter from './routes/programs.routes'
+import ExerciseRouter from './routes/exercises.routes'
+import AuthRouter from './routes/auth.routes'
+import AdminRouter from './routes/admin.routes'
+import UserRouter from './routes/user.routes'
 
 const PORT = process.env.PORT ?? 8000
 const app = express()
 
+// Middlewares
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 app.use(cookieParser())
@@ -30,10 +31,12 @@ app.use('/auth', AuthRouter)
 app.use('/programs', ProgramRouter)
 app.use('/exercises', ExerciseRouter)
 app.use('/admin', AdminRouter)
-app.use('/', UserRouter)
+app.use('/users', UserRouter)
 
 // Error Handler
 app.use(errorHandler())
+
+// Start Server
 ;(async () => {
   try {
     await sequelize.authenticate()

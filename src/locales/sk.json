@@ -16,7 +16,8 @@
     "errors": {
       "programOrExerciseMissing": "Program alebo cvičenie nebolo nájdené",
       "addExercise": "Nepodarilo sa pridať cvičenie do programu",
-      "removeExercise": "Nepodarilo sa odstrániť cvičenie z programu"
+      "removeExercise": "Nepodarilo sa odstrániť cvičenie z programu",
+      "exerciseNotInProgram": "Cvičenie nie je súčasťou programu"
     }
   },
   "user": {
@@ -63,11 +64,13 @@
       "loginFailed": "Prihlásenie zlyhalo",
       "missingRefreshToken": "Chýba obnovovací token",
       "invalidRefreshToken": "Neplatný obnovovací token",
-      "refreshFailed": "Token sa nepodarilo obnoviť"
+      "refreshFailed": "Token sa nepodarilo obnoviť",
+      "logoutFailed": "Odhlásenie zlyhalo"
     },
     "registered": "Používateľ bol úspešne zaregistrovaný",
     "loggedIn": "Prihlásenie bolo úspešné",
-    "tokenRefreshed": "Prístupový token bol obnovený"
+    "tokenRefreshed": "Prístupový token bol obnovený",
+    "loggedOut": "Odhlásenie bolo úspešné"
   },
   "validation": {
     "common": {

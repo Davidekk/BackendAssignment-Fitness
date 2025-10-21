@@ -2,9 +2,14 @@ import { Request, Response, NextFunction } from 'express'
 import { Op } from 'sequelize'
 
 import { models } from '../db'
-import { createLocalizedResponse } from '../services/localization'
+import { createLocalizedResponse } from '../services/localization.service'
 const { Exercise, Program } = models
 
+/**
+ * List exercises with optional pagination, filtering, and search.
+ * @route GET /exercises
+ * @returns 200 with paginated exercises.
+ */
 export const listExercises = async (
   req: Request,
   res: Response,

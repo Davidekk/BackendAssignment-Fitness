@@ -2,7 +2,7 @@ import express from 'express'
 import passport from '../config/passport'
 import { authorizeRole } from '../middlewares/authorize'
 import { USER_ROLE } from '../utils/enums'
-import * as AdminController from '../controllers/admin'
+import * as AdminController from '../controllers/admin.controller'
 import { validate } from '../middlewares/validate'
 import { idParamSchema, updateUserSchema } from '../validation/user.validation'
 import {

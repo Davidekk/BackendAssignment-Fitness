@@ -27,6 +27,9 @@ function interpolate(template: string, params?: Record<string, unknown>) {
   )
 }
 
+/**
+ * Middleware to handle internationalization (i18n).
+ */
 export function i18n() {
   return (req: Request, _res: Response, next: NextFunction) => {
     const header = (req.header('language') || '').toLowerCase()

@@ -1,10 +1,15 @@
 import { Request, Response, NextFunction } from 'express'
 import { models } from '../db'
 import { StatusCodes } from 'http-status-codes'
-import { createLocalizedResponse } from '../services/localization'
+import { createLocalizedResponse } from '../services/localization.service'
 
 const { User, Exercise, CompletedExercise } = models
 
+/**
+ * Retrieve basic information for all users.
+ * @route GET /users/all
+ * @returns 200 with id and nickname list, or 500 on failure.
+ */
 export const getAllUsersBasic = async (
   req: Request,
   res: Response,
@@ -28,6 +33,11 @@ export const getAllUsersBasic = async (
   }
 }
 
+/**
+ * Retrieve the authenticated user's profile.
+ * @route GET /users/profile
+ * @returns 200 with profile, 404 if user is missing, or 500 on failure.
+ */
 export const getOwnProfile = async (
   req: Request,
   res: Response,
@@ -62,6 +72,11 @@ export const getOwnProfile = async (
   }
 }
 
+/**
+ * Track completion of an exercise for the authenticated user.
+ * @route POST /users/track/:exerciseId
+ * @returns 201 with tracked record, 404 if exercise not found, or 500 on failure.
+ */
 export const trackCompletedExercise = async (
   req: Request,
   res: Response,
@@ -106,6 +121,11 @@ export const trackCompletedExercise = async (
   }
 }
 
+/**
+ * Retrieve the authenticated user's completed exercises.
+ * @route GET /users/completed
+ * @returns 200 with completed exercises, or 500 on failure.
+ */
 export const getCompletedExercises = async (
   req: Request,
   res: Response,
@@ -136,6 +156,11 @@ export const getCompletedExercises = async (
   }
 }
 
+/**
+ * Remove a tracked exercise by id for the authenticated user.
+ * @route DELETE /users/completed/:id
+ * @returns 200 with removed id, 404 if tracking not found, or 500 on failure.
+ */
 export const removeTrackedExercise = async (
   req: Request,
   res: Response,

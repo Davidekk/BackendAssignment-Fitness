@@ -4,11 +4,20 @@ import { models } from '../db'
 
 const { User } = models
 
-const opts = {
-  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: process.env.JWT_SECRET!
+const jwtSecret = process.env.JWT_SECRET
+
+if (!jwtSecret) {
+  throw new Error('JWT_SECRET environment variable is not defined')
 }
 
+const opts = {
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+  secretOrKey: jwtSecret
+}
+
+/**
+ * Passport JWT Strategy for authenticating users based on JWT tokens.
+ */
 passport.use(
   new JwtStrategy(opts, async (jwt_payload, done) => {
     try {

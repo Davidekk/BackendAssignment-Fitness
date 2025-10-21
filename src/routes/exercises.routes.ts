@@ -1,6 +1,6 @@
 import { Router } from 'express'
 
-import { listExercises } from '../controllers/exercise'
+import { listExercises } from '../controllers/exercise.controller'
 import { listExercisesQuerySchema } from '../validation/exercise.validation'
 import { validate } from '../middlewares/validate'
 

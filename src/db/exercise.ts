@@ -12,6 +12,7 @@ export interface ExerciseModel extends Model {
   id: number
   difficulty: EXERCISE_DIFFICULTY
   name: String
+  programID: string | null
 
   program: ProgramModel
   setProgram: BelongsToSetAssociationMixin<ProgramModel, ProgramModel['id']>

@@ -16,7 +16,8 @@
     "errors": {
       "programOrExerciseMissing": "Program or exercise not found",
       "addExercise": "Failed to add exercise to program",
-      "removeExercise": "Failed to remove exercise from program"
+      "removeExercise": "Failed to remove exercise from program",
+      "exerciseNotInProgram": "Exercise is not part of the program"
     }
   },
   "user": {
@@ -63,11 +64,13 @@
       "loginFailed": "Login failed",
       "missingRefreshToken": "Missing refresh token",
       "invalidRefreshToken": "Invalid refresh token",
-      "refreshFailed": "Could not refresh token"
+      "refreshFailed": "Could not refresh token",
+      "logoutFailed": "Logout failed"
     },
     "registered": "User registered successfully",
     "loggedIn": "Login successful",
-    "tokenRefreshed": "Access token refreshed"
+    "tokenRefreshed": "Access token refreshed",
+    "loggedOut": "Logout successful"
   },
   "validation": {
     "common": {

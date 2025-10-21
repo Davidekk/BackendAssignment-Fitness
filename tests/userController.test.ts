@@ -48,7 +48,7 @@ const { models } = require('../src/db') as {
   }
 }
 
-const userController = require('../src/controllers/user') as typeof import('../src/controllers/user')
+const userController = require('../src/controllers/user.controller') as typeof import('../src/controllers/user.controller')
 
 const mockUserRequest = (overrides: Partial<express.Request> = {}) => {
   const req = ({

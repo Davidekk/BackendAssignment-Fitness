@@ -2,7 +2,7 @@ import express from 'express'
 import passport from '../config/passport'
 import { authorizeRole } from '../middlewares/authorize'
 import { USER_ROLE } from '../utils/enums'
-import * as UserController from '../controllers/user'
+import * as UserController from '../controllers/user.controller'
 import { validate } from '../middlewares/validate'
 import {
   completedExerciseIdParamSchema,

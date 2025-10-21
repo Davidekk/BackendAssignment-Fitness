@@ -6,6 +6,9 @@ export type AppErrorOptions = {
   includeData?: boolean
 }
 
+/**
+ * Custom application error class to standardize error handling.
+ */
 export class AppError extends Error {
   status: number
   messageKey: string

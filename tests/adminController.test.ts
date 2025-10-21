@@ -52,7 +52,7 @@ const { models } = require('../src/db') as {
   }
 }
 
-const adminController = require('../src/controllers/admin') as typeof import('../src/controllers/admin')
+const adminController = require('../src/controllers/admin.controller') as typeof import('../src/controllers/admin.controller')
 
 const buildApp = () => {
   const app = express()
@@ -216,12 +216,11 @@ describe('Admin controller', () => {
 
       const response = await request(app).delete('/programs/1/exercises/2')
 
-      expect(response.status).toBe(200)
+      expect(response.status).toBe(400)
       expect(response.body).toEqual({
-        data: { programId: 1, exerciseId: 2 },
-        message: 'Exercise removed from program'
+        data: { },
+        message: 'Exercise is not part of the program'
       })
-      expect(exerciseInstance.setProgram).toHaveBeenCalledWith(null)
     })
   })
 

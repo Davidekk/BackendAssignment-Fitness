@@ -1,13 +1,17 @@
 import { ErrorRequestHandler, NextFunction, Request, Response } from 'express'
 import { StatusCodes } from 'http-status-codes'
 
-import { createLocalizedResponse } from '../services/localization'
+import { createLocalizedResponse } from '../services/localization.service'
 import { AppError, isAppError } from '../errors/AppError'
 
 export type ErrorHandlerOptions = {
   defaultMessageKey?: string
 }
 
+/**
+ * Extracts error details from the given error object.
+ * @param error
+ */
 const getErrorDetails = (error: unknown) => {
   if (isAppError(error)) {
     return error
@@ -20,6 +24,10 @@ const getErrorDetails = (error: unknown) => {
   })
 }
 
+/**
+ * Express error handling middleware.
+ * @param _options
+ */
 export const errorHandler = (_options: ErrorHandlerOptions = {}) => {
   const handler: ErrorRequestHandler = (
     error,

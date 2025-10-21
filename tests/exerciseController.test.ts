@@ -27,7 +27,7 @@ const { models } = require('../src/db') as {
   }
 }
 
-const exerciseController = require('../src/controllers/exercise') as typeof import('../src/controllers/exercise')
+const exerciseController = require('../src/controllers/exercise.controller') as typeof import('../src/controllers/exercise.controller')
 
 const buildApp = () => {
   const app = express()
