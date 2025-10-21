@@ -4,7 +4,8 @@
     "internalError": "Unexpected error occurred",
     "forbidden": "Access denied",
     "unauthorized": "Unauthorized",
-    "notFound": "Resource not found"
+    "notFound": "Resource not found",
+    "generalError": "Something went wrong"
   },
   "program": {
     "created": "Program was created successfully",

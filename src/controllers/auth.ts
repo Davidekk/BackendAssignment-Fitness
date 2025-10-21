@@ -130,7 +130,7 @@ export const register = async (
       status: StatusCodes.INTERNAL_SERVER_ERROR,
       messageKey: 'auth.errors.registrationFailed',
       data: {},
-      extras: { error }
+      logError: error
     })
   }
 }
@@ -208,7 +208,7 @@ export const login = async (
       status: StatusCodes.INTERNAL_SERVER_ERROR,
       messageKey: 'auth.errors.loginFailed',
       data: {},
-      extras: { error }
+      logError: error
     })
   }
 }
@@ -263,7 +263,7 @@ export const refreshToken = async (
       status: StatusCodes.INTERNAL_SERVER_ERROR,
       messageKey: 'auth.errors.refreshFailed',
       data: {},
-      extras: { error }
+      logError: error
     })
   }
 }

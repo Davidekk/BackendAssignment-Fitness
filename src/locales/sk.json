@@ -4,7 +4,8 @@
     "internalError": "Nastala neočakávaná chyba",
     "forbidden": "Prístup zamietnutý",
     "unauthorized": "Neautorizovaný prístup",
-    "notFound": "Záznam nebol nájdený"
+    "notFound": "Záznam nebol nájdený",
+    "generalError": "Niečo sa pokazilo"
   },
   "program": {
     "created": "Program bol úspešne vytvorený",

@@ -8,6 +8,7 @@ import cookieParser from 'cookie-parser'
 import { sequelize } from './db'
 import passport from './config/passport'
 import { i18n } from './middlewares/i18n'
+import { errorHandler } from './middlewares/errorHandler'
 
 import ProgramRouter from './routes/programs'
 import ExerciseRouter from './routes/exercises'
@@ -30,6 +31,9 @@ app.use('/programs', ProgramRouter)
 app.use('/exercises', ExerciseRouter)
 app.use('/admin', AdminRouter)
 app.use('/', UserRouter)
+
+// Error Handler
+app.use(errorHandler())
 ;(async () => {
   try {
     await sequelize.authenticate()

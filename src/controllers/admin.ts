@@ -26,7 +26,7 @@ export const createExercise = async (
       status: StatusCodes.INTERNAL_SERVER_ERROR,
       messageKey: 'exercise.errors.create',
       data: {},
-      extras: { error: err }
+      logError: err
     })
   }
 }
@@ -70,7 +70,7 @@ export const updateExercise = async (
       status: StatusCodes.INTERNAL_SERVER_ERROR,
       messageKey: 'exercise.errors.update',
       data: {},
-      extras: { error: err }
+      logError: err
     })
   }
 }
@@ -106,7 +106,7 @@ export const deleteExercise = async (
       status: StatusCodes.INTERNAL_SERVER_ERROR,
       messageKey: 'exercise.errors.delete',
       data: {},
-      extras: { error: err }
+      logError: err
     })
   }
 }
@@ -148,7 +148,7 @@ export const addExerciseToProgram = async (
       status: StatusCodes.INTERNAL_SERVER_ERROR,
       messageKey: 'program.errors.addExercise',
       data: {},
-      extras: { error: err }
+      logError: err
     })
   }
 }
@@ -183,7 +183,7 @@ export const removeExerciseFromProgram = async (
       status: StatusCodes.INTERNAL_SERVER_ERROR,
       messageKey: 'program.errors.removeExercise',
       data: {},
-      extras: { error: err }
+      logError: err
     })
   }
 }
@@ -208,7 +208,7 @@ export const getAllUsers = async (
       status: StatusCodes.INTERNAL_SERVER_ERROR,
       messageKey: 'user.errors.loadAll',
       data: {},
-      extras: { error: err }
+      logError: err
     })
   }
 }
@@ -240,7 +240,7 @@ export const getUserDetail = async (
       status: StatusCodes.INTERNAL_SERVER_ERROR,
       messageKey: 'user.errors.loadOne',
       data: {},
-      extras: { error: err }
+      logError: err
     })
   }
 }
@@ -282,7 +282,7 @@ export const updateUser = async (
       status: StatusCodes.INTERNAL_SERVER_ERROR,
       messageKey: 'user.errors.update',
       data: {},
-      extras: { error: err }
+      logError: err
     })
   }
 }

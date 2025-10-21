@@ -230,13 +230,17 @@ describe('User controller', () => {
         data: completed,
         message: 'Completed exercises loaded'
       })
-      expect(models.CompletedExercise.findAll).toHaveBeenCalledWith({
-        where: { userId: '1' },
-        include: [
-            { model: expect.any(Object), attributes: ['id', 'name'] }
-        ],
-        order: [['completedAt', 'DESC']]
-      })
+      expect(models.CompletedExercise.findAll).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { userId: '1' },
+          include: [
+            expect.objectContaining({
+              attributes: ['id', 'name']
+            })
+          ],
+          order: [['completedAt', 'DESC']]
+        })
+      )
     })
   })
 

@@ -23,7 +23,7 @@ export const getAllUsersBasic = async (
       status: StatusCodes.INTERNAL_SERVER_ERROR,
       messageKey: 'user.errors.loadAll',
       data: {},
-      extras: { error: err }
+      logError: err
     })
   }
 }
@@ -57,7 +57,7 @@ export const getOwnProfile = async (
       status: StatusCodes.INTERNAL_SERVER_ERROR,
       messageKey: 'user.errors.loadProfile',
       data: {},
-      extras: { error: err }
+      logError: err
     })
   }
 }
@@ -101,7 +101,7 @@ export const trackCompletedExercise = async (
       status: StatusCodes.INTERNAL_SERVER_ERROR,
       messageKey: 'exercise.errors.track',
       data: {},
-      extras: { error: err }
+      logError: err
     })
   }
 }
@@ -131,7 +131,7 @@ export const getCompletedExercises = async (
       status: StatusCodes.INTERNAL_SERVER_ERROR,
       messageKey: 'exercise.errors.loadCompleted',
       data: {},
-      extras: { error: err }
+      logError: err
     })
   }
 }
@@ -169,7 +169,7 @@ export const removeTrackedExercise = async (
       status: StatusCodes.INTERNAL_SERVER_ERROR,
       messageKey: 'exercise.errors.removeTracked',
       data: {},
-      extras: { error: err }
+      logError: err
     })
   }
 }

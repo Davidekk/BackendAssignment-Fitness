@@ -7,8 +7,8 @@ type LocalizedResponseOptions<T> = {
   data?: T
   params?: Record<string, unknown>
   meta?: Record<string, unknown>
-  extras?: Record<string, unknown>
   includeData?: boolean
+  logError?: unknown
 }
 
 /**
@@ -29,28 +29,35 @@ const respond = <T>(
   defaultIncludeData: boolean,
   defaultData?: T
 ) => {
-  const { messageKey, status, data, params, meta, extras, includeData } =
+  const { messageKey, status, data, params, meta, includeData, logError } =
     options
 
   const resolvedStatus = status ?? defaultStatus
   const resolvedData = (data ?? defaultData) as T | undefined
-  const shouldIncludeData =
+  let shouldIncludeData =
     includeData ?? (defaultIncludeData || resolvedData !== undefined)
 
+  const isServerError = resolvedStatus >= StatusCodes.INTERNAL_SERVER_ERROR
+  const messageKeyToUse = isServerError ? 'common.generalError' : messageKey
+  const messageParams = isServerError ? undefined : params
+
+  if (isServerError) {
+    console.error(`[${messageKey}]`, logError ?? '')
+    shouldIncludeData = true
+  } else if (logError !== undefined) {
+    console.error(`[${messageKey}]`, logError)
+  }
+
   const body: Record<string, unknown> = {
-    message: req.translate(messageKey, params)
+    message: req.translate(messageKeyToUse, messageParams)
   }
 
   if (shouldIncludeData) {
-    body.data = resolvedData
+    body.data = isServerError ? ({} as T) : resolvedData
   }
 
-  if (meta !== undefined) {
+  if (!isServerError && meta !== undefined) {
     body.meta = meta
-  }
-
-  if (extras) {
-    Object.assign(body, extras)
   }
 
   return res.status(resolvedStatus).json(body)

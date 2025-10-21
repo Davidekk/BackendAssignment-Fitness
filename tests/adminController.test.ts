@@ -105,7 +105,7 @@ describe('Admin controller', () => {
       expect(response.status).toBe(500)
       expect(response.body).toMatchObject({
         data: {},
-        message: 'Failed to create exercise'
+        message: 'Something went wrong'
       })
     })
   })
