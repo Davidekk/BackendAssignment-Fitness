@@ -129,7 +129,8 @@ export const addExerciseToProgram = async (
         messageKey: 'program.errors.programOrExerciseMissing',
         data: {}
       })
-      await (program as any).addExercise(exercise)
+
+    await exercise.setProgram(program)
 
     const updatedExercise = await exercise.reload({
       attributes: ['id', 'name', 'difficulty', 'programID']
@@ -170,7 +171,8 @@ export const removeExerciseFromProgram = async (
         messageKey: 'program.errors.programOrExerciseMissing',
         data: {}
       })
-      await (program as any).removeExercise(exercise)
+
+    await exercise.setProgram(null)
 
     responder.success({
       messageKey: 'program.exerciseRemoved',

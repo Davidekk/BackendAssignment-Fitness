@@ -1,4 +1,9 @@
-import { Sequelize, DataTypes, Model } from 'sequelize'
+import {
+  Sequelize,
+  DataTypes,
+  Model,
+  BelongsToSetAssociationMixin
+} from 'sequelize'
 import { ProgramModel } from './program'
 
 import { EXERCISE_DIFFICULTY } from '../utils/enums'
@@ -9,6 +14,7 @@ export interface ExerciseModel extends Model {
   name: String
 
   program: ProgramModel
+  setProgram: BelongsToSetAssociationMixin<ProgramModel, ProgramModel['id']>
 }
 
 export default (sequelize: Sequelize, modelName: string) => {
@@ -39,7 +45,7 @@ export default (sequelize: Sequelize, modelName: string) => {
     ExerciseModelCtor.belongsTo(models.Program, {
       foreignKey: {
         name: 'programID',
-        allowNull: false
+        allowNull: true
       }
     })
   }
