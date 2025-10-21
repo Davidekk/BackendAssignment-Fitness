@@ -1,0 +1,97 @@
+{
+  "common": {
+    "validationError": "Chyba validácie",
+    "internalError": "Nastala neočakávaná chyba",
+    "forbidden": "Prístup zamietnutý",
+    "unauthorized": "Neautorizovaný prístup",
+    "notFound": "Záznam nebol nájdený"
+  },
+  "program": {
+    "created": "Program bol úspešne vytvorený",
+    "deleted": "Program bol odstránený",
+    "exerciseAdded": "Cvičenie bolo pridané do programu",
+    "exerciseRemoved": "Cvičenie bolo odstránené z programu",
+    "list": "Zoznam programov",
+    "errors": {
+      "programOrExerciseMissing": "Program alebo cvičenie nebolo nájdené",
+      "addExercise": "Nepodarilo sa pridať cvičenie do programu",
+      "removeExercise": "Nepodarilo sa odstrániť cvičenie z programu"
+    }
+  },
+  "user": {
+    "updated": "Používateľ bol aktualizovaný",
+    "notFound": "Používateľ nebol nájdený",
+    "errors": {
+      "loadAll": "Nepodarilo sa načítať používateľov",
+      "loadProfile": "Nepodarilo sa načítať profil",
+      "loadOne": "Nepodarilo sa načítať používateľa",
+      "update": "Nepodarilo sa aktualizovať používateľa"
+    },
+    "basicList": "Základný zoznam používateľov bol načítaný",
+    "profileLoaded": "Profil bol načítaný",
+    "list": "Používatelia boli načítaní",
+    "detail": "Detail používateľa bol načítaný"
+  },
+  "exercise": {
+    "created": "Cvičenie \"{name}\" bolo vytvorené",
+    "updated": "Cvičenie \"{name}\" bolo upravené",
+    "deleted": "Cvičenie \"{name}\" bolo odstránené",
+    "list": "Zoznam cvičení",
+    "notFound": "Cvičenie nebolo nájdené",
+    "trackedNotFound": "Zaznamenané cvičenie nebolo nájdené",
+    "errors": {
+      "create": "Nepodarilo sa vytvoriť cvičenie",
+      "update": "Nepodarilo sa aktualizovať cvičenie",
+      "delete": "Nepodarilo sa odstrániť cvičenie",
+      "track": "Nepodarilo sa zaznamenať cvičenie",
+      "loadCompleted": "Nepodarilo sa načítať dokončené cvičenia",
+      "removeTracked": "Nepodarilo sa odstrániť zaznamenané cvičenie"
+    },
+    "tracked": "Cvičenie bolo zaznamenané",
+    "completedList": "Dokončené cvičenia boli načítané",
+    "trackedRemoved": "Zaznamenané cvičenie bolo odstránené"
+  },
+  "auth": {
+    "errors": {
+      "emailTaken": "Email je už zaregistrovaný",
+      "nickTaken": "Prezývka je už zaregistrovaná",
+      "registrationConfig": "Chyba konfigurácie registrácie",
+      "registrationFailed": "Registrácia zlyhala",
+      "invalidCredentials": "Neplatné prihlasovacie údaje",
+      "loginConfig": "Chyba konfigurácie prihlásenia",
+      "loginFailed": "Prihlásenie zlyhalo",
+      "missingRefreshToken": "Chýba obnovovací token",
+      "invalidRefreshToken": "Neplatný obnovovací token",
+      "refreshFailed": "Token sa nepodarilo obnoviť"
+    },
+    "registered": "Používateľ bol úspešne zaregistrovaný",
+    "loggedIn": "Prihlásenie bolo úspešné",
+    "tokenRefreshed": "Prístupový token bol obnovený"
+  },
+  "validation": {
+    "common": {
+      "exerciseIdNumericString": "ID cvičenia musí byť číselný reťazec",
+      "completedExerciseIdInvalid": "Neplatné ID zaznamenaného cvičenia",
+      "invalidDuration": "Trvanie musí byť kladné číslo",
+      "invalidIdFormat": "Neplatný formát ID",
+      "nameRequired": "Meno je povinné",
+      "surnameRequired": "Priezvisko je povinné",
+      "nicknameRequired": "Prezývka je povinná",
+      "emailRequired": "Email je povinný",
+      "invalidEmailFormat": "Neplatný formát e-mailu",
+      "passwordMin": "Heslo musí mať aspoň 6 znakov",
+      "passwordRequired": "Heslo je povinné",
+      "invalidAge": "Neplatný vek",
+      "ageMustBePositive": "Vek musí byť kladný",
+      "invalidPageNumber": "Neplatné číslo strany",
+      "invalidLimitNumber": "Neplatná hodnota limitu",
+      "invalidProgramId": "Neplatné ID programu",
+      "exerciseNameRequired": "Názov cvičenia je povinný",
+      "exerciseNameTooLong": "Názov cvičenia je príliš dlhý",
+      "programIdPositive": "ID programu musí byť kladné číslo",
+      "programIdNumericString": "ID programu musí byť číselný reťazec",
+      "difficultyRequired": "Náročnosť je povinná",
+      "invalidDifficulty": "Neplatná hodnota náročnosti"
+    }
+  }
+}

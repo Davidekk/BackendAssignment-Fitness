@@ -1,18 +1,20 @@
 import { Request, Response, NextFunction } from 'express'
 
 import { models } from '../db'
-
+import { createLocalizedResponse } from '../services/localization'
 const { Program } = models
 
 export const listPrograms = async (
-  _req: Request,
+  req: Request,
   res: Response,
   _next: NextFunction
 ): Promise<any> => {
   const programs = await Program.findAll()
 
-  return res.json({
-    data: programs,
-    message: 'List of programs'
+  const responder = createLocalizedResponse(req, res)
+
+  return responder.success({
+    messageKey: 'program.list',
+    data: programs
   })
 }

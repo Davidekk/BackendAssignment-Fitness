@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express'
 import { Op } from 'sequelize'
 
 import { models } from '../db'
-
+import { createLocalizedResponse } from '../services/localization'
 const { Exercise, Program } = models
 
 export const listExercises = async (
@@ -43,11 +43,15 @@ export const listExercises = async (
 
   const totalPages = Math.ceil(count / limit)
 
-  res.json({
-    page,
-    totalPages,
-    totalItems: count,
-    items: exercises,
-    message: 'List of exercises'
+  const responder = createLocalizedResponse(req, res)
+
+  return responder.success({
+    messageKey: 'exercise.list',
+    data: exercises,
+    meta: {
+      page,
+      totalPages,
+      totalItems: count
+    }
   })
 }

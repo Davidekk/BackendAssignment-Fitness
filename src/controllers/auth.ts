@@ -6,6 +6,7 @@ import { StatusCodes } from 'http-status-codes'
 
 import { models } from '../db'
 import { USER_ROLE } from '../utils/enums'
+import { createLocalizedResponse } from '../services/localization'
 
 const { User } = models
 
@@ -43,6 +44,8 @@ export const register = async (
   res: Response,
   _next: NextFunction
 ): Promise<any> => {
+  const responder = createLocalizedResponse(req, res)
+
   let { name, surname, nickName, email, password, role, age } =
     req.body as RegisterBody
 
@@ -57,15 +60,19 @@ export const register = async (
 
     if (existingUser) {
       if (existingUser.get('email') === email) {
-        return res
-          .status(StatusCodes.CONFLICT)
-          .json({ message: 'Email already registered' })
+        return responder.error({
+          status: StatusCodes.CONFLICT,
+          messageKey: 'auth.errors.emailTaken',
+          data: {}
+        })
       }
 
       if (existingUser.get('nickName') === nickName) {
-        return res
-          .status(StatusCodes.CONFLICT)
-          .json({ message: 'Nickname already registered' })
+        return responder.error({
+          status: StatusCodes.CONFLICT,
+          messageKey: 'auth.errors.nickTaken',
+          data: {}
+        })
       }
     }
 
@@ -83,9 +90,11 @@ export const register = async (
 
     const secret = resolveJwtSecret()
     if (!secret) {
-      return res
-        .status(StatusCodes.INTERNAL_SERVER_ERROR)
-        .json({ message: 'Registration configuration error' })
+      return responder.error({
+        status: StatusCodes.INTERNAL_SERVER_ERROR,
+        messageKey: 'auth.errors.registrationConfig',
+        data: {}
+      })
     }
 
     const accessToken = jwt.sign(
@@ -107,15 +116,22 @@ export const register = async (
       maxAge: 24 * 60 * 60 * 1000 // 24 hours
     })
 
-    return res.status(StatusCodes.CREATED).json({
-      accessToken,
-      user: sanitizeUser(user)
+    return responder.success({
+      status: StatusCodes.CREATED,
+      messageKey: 'auth.registered',
+      data: {
+        accessToken,
+        user: sanitizeUser(user)
+      }
     })
   } catch (error) {
     console.error('register error', error)
-    return res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ message: 'Registration failed' })
+    return responder.error({
+      status: StatusCodes.INTERNAL_SERVER_ERROR,
+      messageKey: 'auth.errors.registrationFailed',
+      data: {},
+      extras: { error }
+    })
   }
 }
 
@@ -124,6 +140,7 @@ export const login = async (
   res: Response,
   _next: NextFunction
 ): Promise<any> => {
+  const responder = createLocalizedResponse(req, res)
   const { email, password } = req.body as {
     email?: string
     password?: string
@@ -133,24 +150,30 @@ export const login = async (
     const user = await User.findOne({ where: { email } })
 
     if (!user) {
-      return res
-        .status(StatusCodes.UNAUTHORIZED)
-        .json({ message: 'Invalid credentials' })
+      return responder.error({
+        status: StatusCodes.UNAUTHORIZED,
+        messageKey: 'auth.errors.invalidCredentials',
+        data: {}
+      })
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.get('password'))
 
     if (!isPasswordValid) {
-      return res
-        .status(StatusCodes.UNAUTHORIZED)
-        .json({ message: 'Invalid credentials' })
+      return responder.error({
+        status: StatusCodes.UNAUTHORIZED,
+        messageKey: 'auth.errors.invalidCredentials',
+        data: {}
+      })
     }
 
     const secret = resolveJwtSecret()
     if (!secret) {
-      return res
-        .status(StatusCodes.INTERNAL_SERVER_ERROR)
-        .json({ message: 'Login configuration error' })
+      return responder.error({
+        status: StatusCodes.INTERNAL_SERVER_ERROR,
+        messageKey: 'auth.errors.loginConfig',
+        data: {}
+      })
     }
 
     const accessToken = jwt.sign(
@@ -172,15 +195,21 @@ export const login = async (
       maxAge: 24 * 60 * 60 * 1000 // 24 hours
     })
 
-    return res.status(StatusCodes.OK).json({
-      accessToken,
-      user: sanitizeUser(user)
+    return responder.success({
+      messageKey: 'auth.loggedIn',
+      data: {
+        accessToken,
+        user: sanitizeUser(user)
+      }
     })
   } catch (error) {
     console.error('login error', error)
-    return res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ message: 'Login failed' })
+    return responder.error({
+      status: StatusCodes.INTERNAL_SERVER_ERROR,
+      messageKey: 'auth.errors.loginFailed',
+      data: {},
+      extras: { error }
+    })
   }
 }
 
@@ -189,12 +218,15 @@ export const refreshToken = async (
   res: Response,
   _next: NextFunction
 ): Promise<any> => {
+  const responder = createLocalizedResponse(req, res)
   const cookieToken = req.cookies?.refreshToken
 
   if (!cookieToken) {
-    return res
-      .status(StatusCodes.UNAUTHORIZED)
-      .json({ message: 'Missing refresh token' })
+    return responder.error({
+      status: StatusCodes.UNAUTHORIZED,
+      messageKey: 'auth.errors.missingRefreshToken',
+      data: {}
+    })
   }
 
   try {
@@ -205,9 +237,11 @@ export const refreshToken = async (
     const user = await User.findByPk(decoded.userId)
 
     if (!user) {
-      return res
-        .status(StatusCodes.UNAUTHORIZED)
-        .json({ message: 'Invalid refresh token' })
+      return responder.error({
+        status: StatusCodes.UNAUTHORIZED,
+        messageKey: 'auth.errors.invalidRefreshToken',
+        data: {}
+      })
     }
 
     const accessToken = jwt.sign(
@@ -216,14 +250,20 @@ export const refreshToken = async (
       { expiresIn: '15m' }
     )
 
-    return res.status(StatusCodes.OK).json({
-      accessToken,
-      user: sanitizeUser(user)
+    return responder.success({
+      messageKey: 'auth.tokenRefreshed',
+      data: {
+        accessToken,
+        user: sanitizeUser(user)
+      }
     })
   } catch (error) {
     console.error('refresh token error', error)
-    return res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ message: 'Could not refresh token' })
+    return responder.error({
+      status: StatusCodes.INTERNAL_SERVER_ERROR,
+      messageKey: 'auth.errors.refreshFailed',
+      data: {},
+      extras: { error }
+    })
   }
 }

@@ -8,10 +8,12 @@ export const validate =
     const result = schema.safeParse(req[target])
 
     if (!result.success) {
-      const errorMessages = result.error.issues.map((issue) => issue.message)
+      const errorMessages = result.error.issues.map((issue) =>
+        req.translate(issue.message)
+      )
 
       res.status(StatusCodes.BAD_REQUEST).json({
-        message: 'Validation error',
+        message: req.translate('common.validationError'),
         errors: errorMessages
       })
       return

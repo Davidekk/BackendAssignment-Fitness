@@ -1,0 +1,97 @@
+{
+  "common": {
+    "validationError": "Validation error",
+    "internalError": "Unexpected error occurred",
+    "forbidden": "Access denied",
+    "unauthorized": "Unauthorized",
+    "notFound": "Resource not found"
+  },
+  "program": {
+    "created": "Program was created successfully",
+    "deleted": "Program was deleted",
+    "exerciseAdded": "Exercise added to program",
+    "exerciseRemoved": "Exercise removed from program",
+    "list": "List of programs",
+    "errors": {
+      "programOrExerciseMissing": "Program or exercise not found",
+      "addExercise": "Failed to add exercise to program",
+      "removeExercise": "Failed to remove exercise from program"
+    }
+  },
+  "user": {
+    "updated": "User has been updated",
+    "notFound": "User not found",
+    "errors": {
+      "loadAll": "Failed to load users",
+      "loadProfile": "Failed to load profile",
+      "loadOne": "Failed to load user",
+      "update": "Failed to update user"
+    },
+    "basicList": "Basic user list loaded",
+    "profileLoaded": "Profile loaded",
+    "list": "Users loaded successfully",
+    "detail": "User detail loaded"
+  },
+  "exercise": {
+    "created": "Exercise \"{name}\" created",
+    "updated": "Exercise \"{name}\" updated",
+    "deleted": "Exercise \"{name}\" deleted",
+    "list": "List of exercises",
+    "notFound": "Exercise not found",
+    "trackedNotFound": "Tracked exercise not found",
+    "errors": {
+      "create": "Failed to create exercise",
+      "update": "Failed to update exercise",
+      "delete": "Failed to delete exercise",
+      "track": "Failed to track exercise",
+      "loadCompleted": "Failed to load completed exercises",
+      "removeTracked": "Failed to remove tracked exercise"
+    },
+    "tracked": "Exercise tracked successfully",
+    "completedList": "Completed exercises loaded",
+    "trackedRemoved": "Tracked exercise removed"
+  },
+  "auth": {
+    "errors": {
+      "emailTaken": "Email already registered",
+      "nickTaken": "Nickname already registered",
+      "registrationConfig": "Registration configuration error",
+      "registrationFailed": "Registration failed",
+      "invalidCredentials": "Invalid credentials",
+      "loginConfig": "Login configuration error",
+      "loginFailed": "Login failed",
+      "missingRefreshToken": "Missing refresh token",
+      "invalidRefreshToken": "Invalid refresh token",
+      "refreshFailed": "Could not refresh token"
+    },
+    "registered": "User registered successfully",
+    "loggedIn": "Login successful",
+    "tokenRefreshed": "Access token refreshed"
+  },
+  "validation": {
+    "common": {
+      "exerciseIdNumericString": "Exercise ID must be a numeric string",
+      "completedExerciseIdInvalid": "Invalid completed exercise ID",
+      "invalidDuration": "Duration must be a positive number",
+      "invalidIdFormat": "Invalid ID format",
+      "nameRequired": "Name is required",
+      "surnameRequired": "Surname is required",
+      "nicknameRequired": "Nickname is required",
+      "emailRequired": "Email is required",
+      "invalidEmailFormat": "Invalid email format",
+      "passwordMin": "Password must be at least 6 characters",
+      "passwordRequired": "Password is required",
+      "invalidAge": "Invalid age",
+      "ageMustBePositive": "Age must be positive",
+      "invalidPageNumber": "Invalid page number",
+      "invalidLimitNumber": "Invalid limit number",
+      "invalidProgramId": "Invalid program ID",
+      "exerciseNameRequired": "Exercise name is required",
+      "exerciseNameTooLong": "Exercise name is too long",
+      "programIdPositive": "Program ID must be a positive number",
+      "programIdNumericString": "Program ID must be a numeric string",
+      "difficultyRequired": "Difficulty is required",
+      "invalidDifficulty": "Invalid difficulty option"
+    }
+  }
+}

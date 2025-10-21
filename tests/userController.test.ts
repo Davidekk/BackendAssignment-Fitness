@@ -1,5 +1,6 @@
 import express from 'express'
 import request from 'supertest'
+import { i18n } from '../src/middlewares/i18n'
 
 jest.mock('../src/db', () => {
   const User = {
@@ -49,15 +50,39 @@ const { models } = require('../src/db') as {
 
 const userController = require('../src/controllers/user') as typeof import('../src/controllers/user')
 
-const mockUserRequest = (overrides: Partial<express.Request> = {}) =>
-  ({
+const mockUserRequest = (overrides: Partial<express.Request> = {}) => {
+  const req = ({
     user: { userId: '1' },
+    headers: {},
     ...overrides
-  }) as express.Request
+  } as unknown) as express.Request
+
+  req.header =
+    (req.header as express.Request['header']) ??
+    (((name: string) => {
+      const lowerName = name.toLowerCase()
+      const headers = req.headers as Record<
+        string,
+        string | string[] | undefined
+      >
+      const value = headers?.[lowerName]
+      return value as any
+    }) as express.Request['header'])
+
+  const middleware = i18n()
+  middleware(
+    req,
+    {} as express.Response,
+    () => undefined
+  )
+
+  return req
+}
 
 const buildApp = () => {
   const app = express()
   app.use(express.json())
+  app.use(i18n())
 
   app.get('/users/basic', userController.getAllUsersBasic)
   app.get('/users/profile', (req, res, next) =>
@@ -98,7 +123,10 @@ describe('User controller', () => {
       const response = await request(app).get('/users/basic')
 
       expect(response.status).toBe(200)
-      expect(response.body).toEqual(users)
+      expect(response.body).toEqual({
+        data: users,
+        message: 'Basic user list loaded'
+      })
       expect(models.User.findAll).toHaveBeenCalledWith({
         attributes: ['id', 'nickName']
       })
@@ -120,7 +148,10 @@ describe('User controller', () => {
       const response = await request(app).get('/users/profile')
 
       expect(response.status).toBe(200)
-      expect(response.body).toEqual(profile)
+      expect(response.body).toEqual({
+        data: profile,
+        message: 'Profile loaded'
+      })
       expect(models.User.findByPk).toHaveBeenCalledWith('1', {
         attributes: ['id', 'name', 'surname', 'nickName', 'age']
       })
@@ -133,7 +164,10 @@ describe('User controller', () => {
       const response = await request(app).get('/users/profile')
 
       expect(response.status).toBe(404)
-      expect(response.body).toEqual({ message: 'User not found' })
+      expect(response.body).toEqual({
+        data: {},
+        message: 'User not found'
+      })
     })
   })
 
@@ -147,7 +181,10 @@ describe('User controller', () => {
         .send({ duration: 123 })
 
       expect(response.status).toBe(404)
-      expect(response.body).toEqual({ message: 'Exercise not found' })
+      expect(response.body).toEqual({
+        data: {},
+        message: 'Exercise not found'
+      })
     })
 
     it('tracks exercise and returns 201', async () => {
@@ -161,7 +198,10 @@ describe('User controller', () => {
         .send({ duration: 45 })
 
       expect(response.status).toBe(201)
-      expect(response.body).toEqual(completed)
+      expect(response.body).toEqual({
+        data: completed,
+        message: 'Exercise tracked successfully'
+      })
       expect(models.CompletedExercise.create).toHaveBeenCalledWith(
         expect.objectContaining({
           userId: '1',
@@ -186,7 +226,10 @@ describe('User controller', () => {
       const response = await request(app).get('/users/completed')
 
       expect(response.status).toBe(200)
-      expect(response.body).toEqual(completed)
+      expect(response.body).toEqual({
+        data: completed,
+        message: 'Completed exercises loaded'
+      })
       expect(models.CompletedExercise.findAll).toHaveBeenCalledWith({
         where: { userId: '1' },
         include: [
@@ -204,8 +247,11 @@ describe('User controller', () => {
 
       const response = await request(app).delete('/users/completed/4')
 
-      expect(response.status).toBe(204)
-      expect(response.body).toEqual({})
+      expect(response.status).toBe(200)
+      expect(response.body).toEqual({
+        data: { id: 4 },
+        message: 'Tracked exercise removed'
+      })
       expect(models.CompletedExercise.destroy).toHaveBeenCalledWith({
         where: { id: '4', userId: '1' }
       })
@@ -218,7 +264,10 @@ describe('User controller', () => {
       const response = await request(app).delete('/users/completed/4')
 
       expect(response.status).toBe(404)
-      expect(response.body).toEqual({ message: 'Tracked exercise not found' })
+      expect(response.body).toEqual({
+        data: {},
+        message: 'Tracked exercise not found'
+      })
     })
   })
 })

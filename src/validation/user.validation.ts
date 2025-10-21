@@ -3,11 +3,19 @@ import { USER_ROLE } from '../utils/enums'
 import { ageValueSchema } from './common'
 
 export const exerciseIdParamSchema = z.object({
-  exerciseId: z.string().regex(/^\d+$/, 'exerciseId must be a numeric string')
+  exerciseId: z
+    .string({
+      error: 'validation.common.exerciseIdNumericString'
+    })
+    .regex(/^\d+$/, 'validation.common.exerciseIdNumericString')
 })
 
 export const completedExerciseIdParamSchema = z.object({
-  id: z.string().regex(/^\d+$/, 'Invalid completed exercise ID')
+  id: z
+    .string({
+      error: 'validation.common.completedExerciseIdInvalid'
+    })
+    .regex(/^\d+$/, 'validation.common.completedExerciseIdInvalid')
 })
 
 export const trackExerciseBodySchema = z
@@ -15,30 +23,39 @@ export const trackExerciseBodySchema = z
     duration: z
       .any()
       .refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
-        message: 'Invalid duration'
+        message: 'validation.common.invalidDuration'
       })
       .transform((val) => Number(val))
   })
   .strict()
 
 export const idParamSchema = z.object({
-  id: z.string().trim().regex(/^\d+$/, { message: 'Invalid ID format' })
+  id: z
+    .string({
+      error: 'validation.common.invalidIdFormat'
+    })
+    .trim()
+    .regex(/^\d+$/, { message: 'validation.common.invalidIdFormat' })
 })
 
 export const updateUserSchema = z
   .object({
-    name: z.string().trim().min(1, { message: 'Name is required' }).optional(),
+    name: z
+      .string()
+      .trim()
+      .min(1, { message: 'validation.common.nameRequired' })
+      .optional(),
 
     surname: z
       .string()
       .trim()
-      .min(1, { message: 'Surname is required' })
+      .min(1, { message: 'validation.common.surnameRequired' })
       .optional(),
 
     nickName: z
       .string()
       .trim()
-      .min(1, { message: 'Nickname is required' })
+      .min(1, { message: 'validation.common.nicknameRequired' })
       .optional(),
 
     age: ageValueSchema,

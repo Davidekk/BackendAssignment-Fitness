@@ -3,15 +3,35 @@ import { USER_ROLE } from '../utils/enums'
 import { ageValueSchema } from './common'
 
 export const registerSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
+  name: z
+    .string({
+      error: 'validation.common.nameRequired'
+    })
+    .min(1, 'validation.common.nameRequired'),
 
-  surname: z.string().min(1, 'Surname is required'),
+  surname: z
+    .string({
+      error: 'validation.common.surnameRequired'
+    })
+    .min(1, 'validation.common.surnameRequired'),
 
-  nickName: z.string().min(1, 'Nickname is required'),
+  nickName: z
+    .string({
+      error: 'validation.common.nicknameRequired'
+    })
+    .min(1, 'validation.common.nicknameRequired'),
 
-  email: z.email('Invalid email format'),
+  email: z
+    .string({
+      error: 'validation.common.emailRequired'
+    })
+    .email('validation.common.invalidEmailFormat'),
 
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  password: z
+    .string({
+      error: 'validation.common.passwordRequired'
+    })
+    .min(6, 'validation.common.passwordMin'),
 
   role: z.enum(USER_ROLE).optional(),
 
@@ -19,7 +39,15 @@ export const registerSchema = z.object({
 })
 
 export const loginSchema = z.object({
-  email: z.email(),
+  email: z
+    .string({
+      error: 'validation.common.emailRequired'
+    })
+    .email('validation.common.invalidEmailFormat'),
 
-  password: z.string().min(1, 'Password is required')
+  password: z
+    .string({
+      error: 'validation.common.passwordRequired'
+    })
+    .min(1, 'validation.common.passwordRequired')
 })

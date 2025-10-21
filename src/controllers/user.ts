@@ -1,21 +1,30 @@
 import { Request, Response, NextFunction } from 'express'
 import { models } from '../db'
 import { StatusCodes } from 'http-status-codes'
+import { createLocalizedResponse } from '../services/localization'
 
 const { User, Exercise, CompletedExercise } = models
 
 export const getAllUsersBasic = async (
-  _req: Request,
+  req: Request,
   res: Response,
   _next: NextFunction
 ): Promise<void> => {
+  const responder = createLocalizedResponse(req, res)
+
   try {
     const users = await User.findAll({ attributes: ['id', 'nickName'] })
-    res.json(users)
+    responder.success({
+      messageKey: 'user.basicList',
+      data: users
+    })
   } catch (err) {
-    res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ message: 'Failed to load users', error: err })
+    responder.error({
+      status: StatusCodes.INTERNAL_SERVER_ERROR,
+      messageKey: 'user.errors.loadAll',
+      data: {},
+      extras: { error: err }
+    })
   }
 }
 
@@ -24,20 +33,32 @@ export const getOwnProfile = async (
   res: Response,
   _next: NextFunction
 ): Promise<void> => {
+  const responder = createLocalizedResponse(req, res)
+
   try {
     const userId = req.user.userId
     const user = await User.findByPk(userId, {
       attributes: ['id', 'name', 'surname', 'nickName', 'age']
     })
     if (!user) {
-      res.status(StatusCodes.NOT_FOUND).json({ message: 'User not found' })
+      responder.error({
+        status: StatusCodes.NOT_FOUND,
+        messageKey: 'user.notFound',
+        data: {}
+      })
       return
     }
-    res.json(user)
+    responder.success({
+      messageKey: 'user.profileLoaded',
+      data: user
+    })
   } catch (err) {
-    res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ message: 'Failed to load profile', error: err })
+    responder.error({
+      status: StatusCodes.INTERNAL_SERVER_ERROR,
+      messageKey: 'user.errors.loadProfile',
+      data: {},
+      extras: { error: err }
+    })
   }
 }
 
@@ -46,6 +67,8 @@ export const trackCompletedExercise = async (
   res: Response,
   _next: NextFunction
 ): Promise<void> => {
+  const responder = createLocalizedResponse(req, res)
+
   try {
     const userId = req.user.userId
     const { exerciseId } = req.params
@@ -53,7 +76,11 @@ export const trackCompletedExercise = async (
 
     const exercise = await Exercise.findByPk(exerciseId)
     if (!exercise) {
-      res.status(StatusCodes.NOT_FOUND).json({ message: 'Exercise not found' })
+      responder.error({
+        status: StatusCodes.NOT_FOUND,
+        messageKey: 'exercise.notFound',
+        data: {}
+      })
       return
     }
 
@@ -64,11 +91,18 @@ export const trackCompletedExercise = async (
       completedAt: new Date()
     })
 
-    res.status(StatusCodes.CREATED).json(completed)
+    responder.success({
+      status: StatusCodes.CREATED,
+      messageKey: 'exercise.tracked',
+      data: completed
+    })
   } catch (err) {
-    res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ message: 'Failed to track exercise', error: err })
+    responder.error({
+      status: StatusCodes.INTERNAL_SERVER_ERROR,
+      messageKey: 'exercise.errors.track',
+      data: {},
+      extras: { error: err }
+    })
   }
 }
 
@@ -77,20 +111,28 @@ export const getCompletedExercises = async (
   res: Response,
   _next: NextFunction
 ): Promise<void> => {
+  const responder = createLocalizedResponse(req, res)
+
   try {
     const userId = req.user.userId
 
     const completed = await CompletedExercise.findAll({
       where: { userId },
-      include: [{ model: Exercise, attributes: ['id', 'name'] }],
+      include: [{ association: 'exercise', attributes: ['id', 'name'] }],
       order: [['completedAt', 'DESC']]
     })
 
-    res.json(completed)
+    responder.success({
+      messageKey: 'exercise.completedList',
+      data: completed
+    })
   } catch (err) {
-    res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ message: 'Failed to load completed exercises', error: err })
+    responder.error({
+      status: StatusCodes.INTERNAL_SERVER_ERROR,
+      messageKey: 'exercise.errors.loadCompleted',
+      data: {},
+      extras: { error: err }
+    })
   }
 }
 
@@ -99,6 +141,8 @@ export const removeTrackedExercise = async (
   res: Response,
   _next: NextFunction
 ): Promise<void> => {
+  const responder = createLocalizedResponse(req, res)
+
   try {
     const userId = req.user.userId
     const { id } = req.params
@@ -108,16 +152,24 @@ export const removeTrackedExercise = async (
     })
 
     if (!deleted) {
-      res
-        .status(StatusCodes.NOT_FOUND)
-        .json({ message: 'Tracked exercise not found' })
+      responder.error({
+        status: StatusCodes.NOT_FOUND,
+        messageKey: 'exercise.trackedNotFound',
+        data: {}
+      })
       return
     }
 
-    res.status(StatusCodes.NO_CONTENT).send()
+    responder.success({
+      messageKey: 'exercise.trackedRemoved',
+      data: { id: Number(id) }
+    })
   } catch (err) {
-    res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ message: 'Failed to remove tracked exercise', error: err })
+    responder.error({
+      status: StatusCodes.INTERNAL_SERVER_ERROR,
+      messageKey: 'exercise.errors.removeTracked',
+      data: {},
+      extras: { error: err }
+    })
   }
 }

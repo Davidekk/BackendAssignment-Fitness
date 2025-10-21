@@ -1,6 +1,7 @@
 import express from 'express'
 import request from 'supertest'
 import { Op } from 'sequelize'
+import { i18n } from '../src/middlewares/i18n'
 
 jest.mock('../src/db', () => {
   const Exercise = {
@@ -30,6 +31,7 @@ const exerciseController = require('../src/controllers/exercise') as typeof impo
 
 const buildApp = () => {
   const app = express()
+  app.use(i18n())
   app.get('/exercises', exerciseController.listExercises)
   return app
 }
@@ -54,10 +56,12 @@ describe('Exercise controller listExercises', () => {
 
     expect(response.status).toBe(200)
     expect(response.body).toEqual({
-      page: 1,
-      totalPages: 1,
-      totalItems: 1,
-      items,
+      data: items,
+      meta: {
+        page: 1,
+        totalPages: 1,
+        totalItems: 1
+      },
       message: 'List of exercises'
     })
     expect(models.Exercise.findAndCountAll).toHaveBeenCalledWith({
@@ -86,8 +90,8 @@ describe('Exercise controller listExercises', () => {
     )
 
     expect(response.status).toBe(200)
-    expect(response.body.page).toBe(2)
-    expect(response.body.totalItems).toBe(15)
+    expect(response.body.meta.page).toBe(2)
+    expect(response.body.meta.totalItems).toBe(15)
     expect(models.Exercise.findAndCountAll).toHaveBeenCalledWith({
       where: {
         programID: 3,
@@ -107,4 +111,3 @@ describe('Exercise controller listExercises', () => {
     })
   })
 })
-

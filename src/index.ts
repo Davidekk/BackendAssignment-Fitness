@@ -7,6 +7,7 @@ import cookieParser from 'cookie-parser'
 
 import { sequelize } from './db'
 import passport from './config/passport'
+import { i18n } from './middlewares/i18n'
 
 import ProgramRouter from './routes/programs'
 import ExerciseRouter from './routes/exercises'
@@ -21,6 +22,7 @@ app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 app.use(cookieParser())
 app.use(passport.initialize())
+app.use(i18n())
 
 // Routes
 app.use('/auth', AuthRouter)
@@ -28,7 +30,6 @@ app.use('/programs', ProgramRouter)
 app.use('/exercises', ExerciseRouter)
 app.use('/admin', AdminRouter)
 app.use('/', UserRouter)
-
 ;(async () => {
   try {
     await sequelize.authenticate()

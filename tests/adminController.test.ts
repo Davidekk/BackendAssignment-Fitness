@@ -1,5 +1,6 @@
 import express from 'express'
 import request from 'supertest'
+import { i18n } from '../src/middlewares/i18n'
 
 jest.mock('../src/db', () => {
   const Exercise = {
@@ -56,6 +57,7 @@ const adminController = require('../src/controllers/admin') as typeof import('..
 const buildApp = () => {
   const app = express()
   app.use(express.json())
+  app.use(i18n())
 
   app.post('/exercises', adminController.createExercise)
   app.put('/exercises/:id', adminController.updateExercise)
@@ -86,7 +88,10 @@ describe('Admin controller', () => {
       const response = await request(app).post('/exercises').send(payload)
 
       expect(response.status).toBe(201)
-      expect(response.body).toEqual(createdExercise)
+      expect(response.body).toEqual({
+        data: createdExercise,
+        message: 'Exercise "Push up" created'
+      })
       expect(models.Exercise.create).toHaveBeenCalledWith(payload)
     })
 
@@ -99,6 +104,7 @@ describe('Admin controller', () => {
 
       expect(response.status).toBe(500)
       expect(response.body).toMatchObject({
+        data: {},
         message: 'Failed to create exercise'
       })
     })
@@ -112,7 +118,10 @@ describe('Admin controller', () => {
       const response = await request(app).put('/exercises/1').send({})
 
       expect(response.status).toBe(404)
-      expect(response.body).toEqual({ message: 'Exercise not found' })
+      expect(response.body).toEqual({
+        data: {},
+        message: 'Exercise not found'
+      })
     })
 
     it('returns updated exercise when present', async () => {
@@ -124,20 +133,28 @@ describe('Admin controller', () => {
       const response = await request(app).put('/exercises/1').send({ name: 'Sit up' })
 
       expect(response.status).toBe(200)
-      expect(response.body).toEqual(updatedExercise)
+      expect(response.body).toEqual({
+        data: updatedExercise,
+        message: 'Exercise "Sit up" updated'
+      })
       expect(models.Exercise.update).toHaveBeenCalledWith({ name: 'Sit up' }, { where: { id: '1' } })
     })
   })
 
   describe('deleteExercise', () => {
-    it('returns 204 after deleting exercise', async () => {
+    it('returns 200 after deleting exercise', async () => {
       const app = buildApp()
-      models.Exercise.destroy.mockResolvedValue(1)
+      const destroy = jest.fn()
+      models.Exercise.findByPk.mockResolvedValue({ destroy, name: 'Push up' })
 
       const response = await request(app).delete('/exercises/1')
 
-      expect(response.status).toBe(204)
-      expect(response.body).toEqual({})
+      expect(response.status).toBe(200)
+      expect(response.body).toEqual({
+        data: { id: 1 },
+        message: 'Exercise "Push up" deleted'
+      })
+      expect(destroy).toHaveBeenCalledTimes(1)
     })
   })
 
@@ -150,37 +167,61 @@ describe('Admin controller', () => {
       const response = await request(app).post('/programs/1/exercises/2')
 
       expect(response.status).toBe(404)
-      expect(response.body).toEqual({ message: 'Program or exercise not found' })
+      expect(response.body).toEqual({
+        data: {},
+        message: 'Program or exercise not found'
+      })
     })
 
     it('adds exercise to program', async () => {
       const app = buildApp()
-      const programInstance = { addExercise: jest.fn() }
-      const exerciseInstance = {}
+      const programInstance = {}
+      const reloadedExercise = {
+        id: 2,
+        name: 'Sit up',
+        difficulty: 'EASY',
+        programID: 1
+      }
+      const exerciseInstance = {
+        setProgram: jest.fn(),
+        reload: jest.fn().mockResolvedValue(reloadedExercise)
+      }
       models.Program.findByPk.mockResolvedValue(programInstance)
       models.Exercise.findByPk.mockResolvedValue(exerciseInstance)
 
       const response = await request(app).post('/programs/1/exercises/2')
 
       expect(response.status).toBe(200)
-      expect(response.body).toEqual({ message: 'Exercise added to program' })
-      expect(programInstance.addExercise).toHaveBeenCalledWith(exerciseInstance)
+      expect(response.body).toEqual({
+        data: {
+          programId: 1,
+          exercise: reloadedExercise
+        },
+        message: 'Exercise added to program'
+      })
+      expect(exerciseInstance.setProgram).toHaveBeenCalledWith(programInstance)
+      expect(exerciseInstance.reload).toHaveBeenCalledTimes(1)
     })
   })
 
   describe('removeExerciseFromProgram', () => {
     it('removes exercise from program', async () => {
       const app = buildApp()
-      const programInstance = { removeExercise: jest.fn() }
-      const exerciseInstance = {}
+      const programInstance = {}
+      const exerciseInstance = {
+        setProgram: jest.fn()
+      }
       models.Program.findByPk.mockResolvedValue(programInstance)
       models.Exercise.findByPk.mockResolvedValue(exerciseInstance)
 
       const response = await request(app).delete('/programs/1/exercises/2')
 
       expect(response.status).toBe(200)
-      expect(response.body).toEqual({ message: 'Exercise removed from program' })
-      expect(programInstance.removeExercise).toHaveBeenCalledWith(exerciseInstance)
+      expect(response.body).toEqual({
+        data: { programId: 1, exerciseId: 2 },
+        message: 'Exercise removed from program'
+      })
+      expect(exerciseInstance.setProgram).toHaveBeenCalledWith(null)
     })
   })
 
@@ -193,7 +234,10 @@ describe('Admin controller', () => {
       const response = await request(app).get('/users')
 
       expect(response.status).toBe(200)
-      expect(response.body).toEqual(users)
+      expect(response.body).toEqual({
+        data: users,
+        message: 'Users loaded successfully'
+      })
     })
 
     it('returns user detail', async () => {
@@ -204,7 +248,10 @@ describe('Admin controller', () => {
       const response = await request(app).get('/users/1')
 
       expect(response.status).toBe(200)
-      expect(response.body).toEqual(user)
+      expect(response.body).toEqual({
+        data: user,
+        message: 'User detail loaded'
+      })
     })
 
     it('returns 404 when user missing', async () => {
@@ -214,7 +261,10 @@ describe('Admin controller', () => {
       const response = await request(app).get('/users/1')
 
       expect(response.status).toBe(404)
-      expect(response.body).toEqual({ message: 'User not found' })
+      expect(response.body).toEqual({
+        data: {},
+        message: 'User not found'
+      })
     })
 
     it('updates user', async () => {
@@ -226,9 +276,11 @@ describe('Admin controller', () => {
       const response = await request(app).put('/users/1').send({ name: 'Updated' })
 
       expect(response.status).toBe(200)
-      expect(response.body).toEqual(updatedUser)
+      expect(response.body).toEqual({
+        data: updatedUser,
+        message: 'User has been updated'
+      })
       expect(models.User.update).toHaveBeenCalledWith({ name: 'Updated' }, { where: { id: '1' } })
     })
   })
 })
-
